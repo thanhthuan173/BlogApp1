@@ -150,6 +150,8 @@ public class Add extends Fragment {
         map.put("profileImage", String.valueOf(user.getPhotoUrl()));
         map.put("postImage", FieldValue.serverTimestamp());
         map.put("likeCount", 0);
+        map.put("comments", "");
+        map.put("uid", user.getUid());
 
         reference.document(id).set(map)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {

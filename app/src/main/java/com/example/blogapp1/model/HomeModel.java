@@ -1,8 +1,14 @@
 package com.example.blogapp1.model;
 
+import com.google.firebase.firestore.ServerTimestamp;
+
+import java.util.Date;
+
 public class HomeModel {
 
-    private String userName, timestamp,profileImage,postImage, uid,comments, description;
+    private String userName, profileImage,postImage, uid,comments,imageUrl, description, id;
+    @ServerTimestamp
+    private Date timestamp;
 
     private int likeCount;
 
@@ -10,14 +16,16 @@ public class HomeModel {
 
     }
 
-    public HomeModel(String userName, String timestamp, String profileImage, String postImage, String uid, String comments, String description, int likeCount) {
+    public HomeModel(String userName, String profileImage, String postImage, String uid, String comments, String imageUrl, String description, String id, Date timestamp, int likeCount) {
         this.userName = userName;
-        this.timestamp = timestamp;
         this.profileImage = profileImage;
         this.postImage = postImage;
         this.uid = uid;
         this.comments = comments;
+        this.imageUrl = imageUrl;
         this.description = description;
+        this.id = id;
+        this.timestamp = timestamp;
         this.likeCount = likeCount;
     }
 
@@ -27,14 +35,6 @@ public class HomeModel {
 
     public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
     }
 
     public String getProfileImage() {
@@ -69,12 +69,36 @@ public class HomeModel {
         this.comments = comments;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
     public int getLikeCount() {
