@@ -1,6 +1,5 @@
 package com.example.blogapp1.fragments;
 
-
 import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
@@ -70,7 +69,6 @@ public class Add extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -98,7 +96,6 @@ public class Add extends Fragment {
             public void onSend(Uri picUri) {
                 imageUri = picUri;
 
-
                 CropImage.activity(picUri)
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .setAspectRatio(4, 3)
@@ -112,35 +109,36 @@ public class Add extends Fragment {
                 FirebaseStorage storage = FirebaseStorage.getInstance();
                 final StorageReference storageReference = storage.getReference().child("Post Images/" + System.currentTimeMillis());
 
-
-                storageReference.putFile(imageUri)
-                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            uploadData(uri.toString());
-                                        }
-                                    });
+                if (imageUri != null) {
+                    storageReference.putFile(imageUri)
+                            .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                uploadData(uri.toString());
+                                            }
+                                        });
+                                    } else {
+                                        Toast.makeText(getContext(), "Image upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                } else {
+                    Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+                }
             }
         });
-
     }
 
     private void uploadData(String imageURL) {
-
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid()).collection("Post Images");
 
         String id = reference.document().getId();
-
         String description = descET.getText().toString();
-
 
         Map<String, Object> map = new HashMap<>();
         map.put("id", id);
@@ -158,16 +156,13 @@ public class Add extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            System.out.println();
+                            Toast.makeText(getContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
-
-
     }
-
 
     private void init(View view) {
         descET = view.findViewById(R.id.descriptionET);
@@ -176,53 +171,49 @@ public class Add extends Fragment {
         backBtn = view.findViewById(R.id.backBtn);
         nextBtn = view.findViewById(R.id.nextBtn);
 
-
         user = FirebaseAuth.getInstance().getCurrentUser();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Dexter.withContext(getContext())
+                            .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE)
+                            .withListener(new MultiplePermissionsListener() {
+                                @SuppressLint("NotifyDataSetChanged")
+                                @Override
+                                public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                    if (report.areAllPermissionsGranted()) {
+                                        File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download");
 
-                Dexter.withContext(getContext())
-                        .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                        .withListener(new MultiplePermissionsListener() {
-                            @SuppressLint("NotifyDataSetChanged")
-                            @Override
-                            public void onPermissionsChecked(MultiplePermissionsReport Report) {
-                                if (Report.areAllPermissionsGranted()) {
+                                        if (file.exists()) {
+                                            File[] files = file.listFiles();
 
-                                    File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download");
-
-                                    if (file.exists()) {
-                                        File[] files = file.listFiles();
-
-                                        assert files != null;
-                                        for (File file1 : files) {
-                                            if (file1.getAbsolutePath().endsWith(".jpg") || file1.getAbsolutePath().endsWith(".png")) {
-
-                                                list.add(new GalleryImages(Uri.fromFile(file1)));
-                                                adapter.notifyDataSetChanged();
-
+                                            if (files != null) {
+                                                for (File file1 : files) {
+                                                    if (file1.getAbsolutePath().endsWith(".jpg") || file1.getAbsolutePath().endsWith(".png")) {
+                                                        list.add(new GalleryImages(Uri.fromFile(file1)));
+                                                        adapter.notifyDataSetChanged();
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            @Override
-                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-
-                            }
-                        }).check();
-            }
-        });
-
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+                                    // handle permission rationale
+                                }
+                            }).check();
+                }
+            });
+        }
     }
 
     @Override
@@ -230,11 +221,9 @@ public class Add extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-            if (requestCode == RESULT_OK) {
-
+            if (resultCode == RESULT_OK && result != null) {
                 Uri image = result.getUri();
 
                 Glide.with(getContext())
@@ -243,8 +232,10 @@ public class Add extends Fragment {
 
                 imageView.setVisibility(View.VISIBLE);
                 nextBtn.setVisibility(View.VISIBLE);
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+                Toast.makeText(getContext(), "Crop failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
-
         }
     }
 }

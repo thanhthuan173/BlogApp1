@@ -56,20 +56,25 @@ public class Home extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        init(view);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    init(view);
 
-        reference = FirebaseFirestore.getInstance().collection("Posts").document(user.getUid());
+                    list = new ArrayList<>();
+                    adapter = new HomeAdapter(list, getContext());
+                    recyclerView.setAdapter(adapter);
 
-        list = new ArrayList<>();
-        adapter = new HomeAdapter(list,getContext());
-        recyclerView.setAdapter(adapter);
-
-        loadDataFromFirestore();
-
+                    loadDataFromFirestore();
+                }
+            });
+        }
     }
+
 
     private void init(View view){
 
@@ -88,43 +93,32 @@ public class Home extends Fragment {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void loadDataFromFirestore(){
+    private void loadDataFromFirestore() {
 
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
-                        .document(user.getUid())
-                                .collection("Post Images");
+                .document(user.getUid())
+                .collection("Post Images");
 
-        reference.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+        reference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error!=null){
+                if (error != null) {
                     Log.e("Error: ", error.getMessage());
                     return;
                 }
-                assert value!=null;
-                for (QueryDocumentSnapshot snapshot :value){
 
+                if (value == null) return;
+
+                list.clear(); // Xóa danh sách để tránh trùng lặp
+                for (QueryDocumentSnapshot snapshot : value) {
                     HomeModel model = snapshot.toObject(HomeModel.class);
-
-                    list.add(new HomeModel(
-                            model.getUserName(),
-                            model.getProfileImage(),
-                            model.getPostImage(),
-                            model.getUid(),
-                            model.getComments(),
-                            model.getImageUrl(),
-                            model.getDescription(),
-                            model.getId(),
-                            model.getTimestamp(),
-                            model.getLikeCount()
-                            ));
-                    adapter.notifyDataSetChanged();
+                    list.add(model);
                 }
+                adapter.notifyDataSetChanged();
             }
         });
-
-        adapter.notifyDataSetChanged();
     }
+
 
 
 }
