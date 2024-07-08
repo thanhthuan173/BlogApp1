@@ -1,5 +1,6 @@
 package com.example.blogapp1.fragments;
 
+import android.annotation.SuppressLint;
 import android.net.wifi.hotspot2.pps.HomeSp;
 import android.os.Bundle;
 
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +23,16 @@ import com.example.blogapp1.adapter.HomeAdapter;
 import com.example.blogapp1.model.HomeModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Home extends Fragment {
@@ -79,12 +87,26 @@ public class Home extends Fragment {
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void loadDataFromFirestore(){
 
-        list.add(new HomeModel("Thuan","05/07/2024","","","123456",12));
-        list.add(new HomeModel("Thuan","04/07/2024","","","321654",20));
-        list.add(new HomeModel("Thuan","05/07/2024","","","452165",11));
-        list.add(new HomeModel("Thuan","05/07/2024","","","888811",5));
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
+                        .document(user.getUid())
+                                .collection("Post Images");
+
+        reference.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if(error!=null){
+                    Log.e("Error: ", error.getMessage());
+                    return;
+                }
+                assert value!=null;
+                for (QueryDocumentSnapshot snapshot :value){
+
+                }
+            }
+        });
 
         adapter.notifyDataSetChanged();
     }

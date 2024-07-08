@@ -1,5 +1,6 @@
 package com.example.blogapp1.fragments;
 
+import android.media.Image;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,6 +44,7 @@ public class Profile extends Fragment {
     private RecyclerView recyclerView;
     private LinearLayout countLayout;
     private FirebaseUser user;
+    private ImageButton editProfileBtn;
     boolean isMyProfile = true;
     String uid;
     FirestoreRecyclerAdapter<PostImageModel, PostImageHolder> adapter;
@@ -96,6 +99,8 @@ public class Profile extends Fragment {
         followBtn = view.findViewById(R.id.followBtn);
         recyclerView = view.findViewById(R.id.recyclerView);
         countLayout = view.findViewById(R.id.countLayout);
+        editProfileBtn = view.findViewById(R.id.edit_profileImages);
+
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -119,16 +124,16 @@ public class Profile extends Fragment {
 
                     String name = value.getString("name");
                     String status = value.getString("status");
-//                    int followers = value.getLong("followers").intValue();
-//                    int following = value.getLong("following").intValue();
+                    int followers = value.getLong("followers").intValue();
+                    int following = value.getLong("following").intValue();
 
                     String profileURL = value.getString("profileImage");
 
                     nameTv.setText(name);
                     toolbarNameTv.setText(name);
                     statusTv.setText(status);
-//                    followersCountTv.setText(String.valueOf(followers));
-//                    followingCountTv.setText(String.valueOf(following));
+                    followersCountTv.setText(String.valueOf(followers));
+                    followingCountTv.setText(String.valueOf(following));
 
                     Glide.with(getContext().getApplicationContext())
                             .load(profileURL)

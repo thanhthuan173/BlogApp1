@@ -20,6 +20,7 @@ import java.util.List;
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryHolder> {
 
     private List<GalleryImages> list;
+    SendImage onSendImage;
 
     public GalleryAdapter(List<GalleryImages> list){
         this.list = list;
@@ -32,19 +33,26 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryH
         return new GalleryHolder(view);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull GalleryHolder holder, int position) {
 
-        holder.imageView.setImageURI(list.get(position).getPicUri());
+    @Override
+    public void onBindViewHolder(@NonNull GalleryHolder holder,final int position) {
+        Glide.with(holder.imageView.getContext().getApplicationContext())
+                .load(list.get(position).getPicUri())
+                .into(holder.imageView);
+
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseImage(list.get(position).getPicUri());
+                int adapterPosition = holder.getBindingAdapterPosition();
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    chooseImage(list.get(adapterPosition).getPicUri());
+                }
             }
         });
     }
 
     private void chooseImage(Uri picUri) {
+        onSendImage.onSend(picUri);
     }
 
     @Override
@@ -59,5 +67,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryH
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
         }
+    }
+
+    public interface SendImage{
+        void onSend(Uri picUri);
+    }
+
+    public void SendImage(SendImage sendImage){
+        this.onSendImage = sendImage;
     }
 }

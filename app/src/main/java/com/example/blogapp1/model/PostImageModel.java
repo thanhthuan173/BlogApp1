@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class PostImageModel {
 
-    private String imageUrl, id;
+    private String imageUrl, id,description;
 
     @ServerTimestamp
     private Date timestamp;
@@ -14,9 +14,10 @@ public class PostImageModel {
     public PostImageModel() {
     }
 
-    public PostImageModel(String imageUrl, String id, Date timestamp) {
+    public PostImageModel(String imageUrl, String id, String description, Date timestamp) {
         this.imageUrl = imageUrl;
         this.id = id;
+        this.description = description;
         this.timestamp = timestamp;
     }
 
@@ -24,20 +25,28 @@ public class PostImageModel {
         return imageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     public String getId() {
         return id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public void setId(String id) {
         this.id = id;
     }
 
-    public Date getTimestamp() {
-        return timestamp;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setTimestamp(Date timestamp) {
