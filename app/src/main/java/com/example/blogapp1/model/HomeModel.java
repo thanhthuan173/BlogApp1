@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class HomeModel {
 
-    private String userName, profileImage,postImage, uid,comments,imageUrl, description, id;
+    private String userName, profileImage,postImage, uid,comments,imageUrl, description ,id;
     @ServerTimestamp
     private Date timestamp;
 
@@ -16,10 +16,9 @@ public class HomeModel {
 
     }
 
-    public HomeModel(String userName, String profileImage, String postImage, String uid, String comments, String imageUrl, String description, String id, Date timestamp, int likeCount) {
+    public HomeModel(String userName, String profileImage, String imageUrl, String uid, String comments,  String description, String id, Date timestamp, int likeCount) {
         this.userName = userName;
         this.profileImage = profileImage;
-        this.postImage = postImage;
         this.uid = uid;
         this.comments = comments;
         this.imageUrl = imageUrl;

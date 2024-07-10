@@ -42,7 +42,7 @@ public class Home extends Fragment {
     private FirebaseUser user;
     private List<HomeModel> list;
 
-    DocumentReference reference;
+
 
     public Home() {
         // Required empty public constructor
@@ -58,6 +58,7 @@ public class Home extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        init(view);
 
         if (getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
@@ -99,7 +100,7 @@ public class Home extends Fragment {
                 .document(user.getUid())
                 .collection("Post Images");
 
-        reference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        /*reference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -107,18 +108,58 @@ public class Home extends Fragment {
                     return;
                 }
 
-                if (value == null) return;
+                /*if (value == null) return;
 
                 list.clear(); // Xóa danh sách để tránh trùng lặp
                 for (QueryDocumentSnapshot snapshot : value) {
                     HomeModel model = snapshot.toObject(HomeModel.class);
                     list.add(model);
                 }
-                adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();*/
+               /* assert  value != null;
+                for (QueryDocumentSnapshot snapshot : value) {
+                    list.add(new HomeModel(snapshot.get("userName").toString(),
+                                    snapshot.get("timstamp").toString(),
+                                    snapshot.get("profileImage").toString(),
+                                    snapshot.get("postImage").toString(),
+                                    snapshot.get("uid").toString(),
+                                    snapshot.get("comments").toString(),
+                                    snapshot.get("description").toString(),
+                                    snapshot.get("id").toString(),
+                                    Integer.parseInt(snapshot.get("likeCount").toString())
+                            ));
+                    adapter.notifyDataSetChanged();
+                }
+                
             }
+        });*/
+        reference.addSnapshotListener((value, error) -> {
+            if (error != null ) {
+                Log.e("Error: ", error.getMessage());
+                return;
+            }
+            if(value == null)
+                return;
+
+            for (QueryDocumentSnapshot snapshot : value) {
+                if (!snapshot.exists())
+                    return;;
+                HomeModel model = snapshot.toObject(HomeModel.class);
+                list.add(new HomeModel(
+                        model.getUserName(),
+                        model.getProfileImage(),
+                        model.getImageUrl(),
+                        model.getUid(),
+                        model.getComments(),
+                        model.getDescription(),
+                        model.getId(),
+                        model.getTimestamp(),
+                        model.getLikeCount()
+
+                        ));
+
+            }
+            adapter.notifyDataSetChanged();
         });
     }
-
-
-
 }
